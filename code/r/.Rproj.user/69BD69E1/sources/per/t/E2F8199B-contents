@@ -1,0 +1,306 @@
+library(MASS)
+
+# Function to return the trajectory values from xs that are on given weekdays
+extract_days <- function(xs, day) {
+  elements <- seq(day+1, length(xs), 7)
+  return(xs[elements])
+  
+  #ys <- vector()
+  #  for (i in seq_along(xs)) {
+  #      if ((i - 1) %% 7 %in% days) {
+  #          ys <- c(ys, xs[i])
+  #      }
+  #  }
+  #  return(ys)
+}
+
+# Calculates the mean ratio between day t and day t+step
+mean_rev <- function(xs, step) {
+    ys <- vector()
+    for (i in seq_len(length(xs) - step)) {
+        ys <- c(ys, xs[i + step] / xs[i])
+    }
+    return(mean(ys))
+}
+
+polynomial_regression <- function(ys, xs, degree) {
+  n <- length(xs)
+  
+  X <- matrix(0, n, degree)
+  
+  X <- cbind(rep(1, n), X)
+  
+  for (i in 1:degree) {
+    X[, i+1] = xs^i
+  }
+  
+  beta <- solve(t(X) %*% X) %*% t(X) %*%  ys
+  
+  return(beta)
+}
+
+loss_poly <- function(ys, xs, beta) {
+  n <- length(xs)
+  degree <- length(beta) - 1
+  
+  X <- matrix(0, n, degree)
+  
+  X <- cbind(rep(1, n), X)
+  
+  for (i in 1:degree) {
+    X[, i+1] = xs^i
+  }
+  
+  ys_hat <- X %*% beta
+  
+  loss <- sum((ys - ys_hat)^2)
+  
+  return(loss)
+}
+
+gradient_poly <- function(y, x, beta) {
+  degree <- length(beta) - 1
+  x_new <- c(1)
+  
+  for (i in 1:degree) {
+    x_new <- c(x_new, x^i)
+  }
+  
+  grad <- (-2 * t(x_new) * y) + (2 * t(x_new) * (x_new %*% beta)[1, 1])
+  
+  return(grad)
+}
+
+# Computes the linear regression:
+# s(t) = beta_0 + beta_1 s(t-1) + ... + beta_shift s(t-shift) + error
+autoregress <- function(obs, shift, force_intercept_origin = FALSE) {
+    n <- length(obs)
+
+    start = 1
+    X <- matrix(0, n - shift, shift)
+
+    if (force_intercept_origin == FALSE) {
+      start = 2
+      X <- cbind(rep(1, n - shift), X)    
+    }
+
+    for (i in start:(shift + 1)) {
+        X[, i] <- obs[(i - 1):(n - shift + (i - 2))]
+    }
+
+    y <- obs[(shift + 1):n]
+
+    beta <- solve(t(X) %*% X, t(X) %*%  y)
+
+    return(beta)
+}
+
+# Computes the loss function for the autoregression above
+loss_autoregress <- function(obs, shift, beta, force_intercept_origin = FALSE) {
+    n <- length(obs)
+
+    start = 1
+    X <- matrix(0, n - shift, shift)
+
+    if (force_intercept_origin == FALSE) {
+      start = 2
+      X <- cbind(rep(1, n - shift), X)    
+    }
+
+    for (i in start:(shift + 1)) {
+        X[, i] <- obs[(i - 1):(n - shift + (i - 2))]
+    }
+
+    y <- obs[(shift + 1):n]
+    y_hat <- X %*% beta
+
+    loss <- sum((y - y_hat)^2)
+
+    return(loss)
+}
+
+# Computes the gradient for the autoregression above
+gradient_autoregress <- function(x, y, beta, force_intercept_origin = FALSE) {
+    if (force_intercept_origin == FALSE) {
+      x <- c(1, x)
+    }
+
+    grad <- (-2 * t(x) * y) + (2 * t(x) * (x %*% beta)[1, 1])
+
+    return(grad)
+}
+
+# Get rid of values <= 0 and fit a gamma distribution on what's left
+gamma <- function(xs, approx = FALSE) {
+  #xs_gam <- xs[xs > 0]
+
+  s <- log(mean(xs)) - mean(log(xs))
+  k <- ( 3 - s + sqrt(((s - 3) ^ 2) + (24 * s)) ) / ( 12 * s )
+  
+  theta = mean(xs) / k
+  
+  par <- c(k, 1 / theta)
+  
+  if (!approx) {
+    par <- fitdistr(xs, "gamma",
+                    start = list(shape = k, rate = 1/theta))$estimate
+  }
+  
+  return(par)
+}
+
+# Compute loss function for gamma above
+loss_gamma <- function(xs, shape, rate) {
+    xs_gam <- xs[xs > 0]
+
+    return(-sum(dgamma(xs_gam, shape, rate, log = TRUE)))
+}
+
+# Compute gradient for gamma above
+gradient_gamma <- function(x, shape, rate) {
+    return(-c(log(rate * x) - digamma(shape), (shape / rate) - x))
+}
+
+# Compute loss function for a normal distribution
+loss_normal <- function(xs, mu, sigma) {
+  return(-sum(dnorm(xs, mu, sigma, log = TRUE)))
+}
+
+# Compute gradient for a normal distribution
+gradient_normal <- function(x, mu, sigma) {
+  grad <- c(-x / (sigma ^ 2) + mu / (sigma ^ 2),
+            (1 / sigma) - ((x - mu) ^ 2) / (sigma ^ 3))
+
+  return(grad)
+}
+
+# Compute the quadratic loss function
+loss_quadratic <- function(xs, par) {
+  return(sum((xs - par) ^ 2) / 2)
+}
+
+# Compute the gradient for the quadratic loss function
+gradient_quadratic <- function(x, par) {
+  return(par - x)
+}
+
+ordered_differences <- function(xs) {
+  diffs <- diff(xs)
+  diffs_ordered <- diffs[order(diffs)]
+  return(diffs_ordered)
+}
+
+
+
+count_above <- function(xs, lvl=0.5) {
+  l <- length(xs)
+  
+  diffs_1 <- diff(xs)
+  diffs_2 <- diff(diffs_1)
+  
+  out <- 0
+  
+  off <- -2
+  for (d in diffs_2) {
+    if (abs(d) > lvl & off >= 0) {
+      out <- out + 1
+      off <- -2 
+    } else {
+      off <- off + 1
+    }
+  }
+  
+  return(out)
+}
+
+count_above_std <- function(xs, n_std) {
+  l <- length(xs)
+  
+  diffs_1 <- diff(xs)
+  diffs_2 <- diff(diffs_1)
+  
+  diffs_2 <- abs(diffs_2 - mean(diffs_2))
+  
+  thresh <- n_std*sd(diffs_2)
+  
+  out <- 0
+  
+  off <- -2
+  for (d in diffs_2) {
+    if (d > thresh & off >= 0) {
+      out <- out + 1
+      off <- -2 
+    } else {
+      off <- off + 1
+    }
+  }
+  
+  return(out)
+}
+
+times_to_revert <- function(xs) {
+  m = mean(xs)
+  out <- c()
+  
+  is_above_mean <- NA
+
+  if (xs[1] > m) {
+    is_above_mean <- TRUE
+  } else {
+    is_above_mean <- FALSE
+  }
+  
+  count <- 0
+  
+  for (i in 2:length(xs)) {
+    count <- count + 1
+    if (is_above_mean == TRUE & xs[i] < m) {
+      is_above_mean <- FALSE
+      out <- c(out, count)
+      count <- 0
+    } else if (is_above_mean == FALSE & xs[i] > m) {
+      is_above_mean <- TRUE
+      out <- c(out, count)
+      count <- 0
+    }
+  }
+  
+  return(out)
+}
+
+spike_detection <- function(xs, threshold) {
+  spikes = c()
+  off <- -2
+  for (i in 2:(length(xs)-1)) {
+    if (off >= 0) {
+      l = abs(xs[i] - xs[i-1]) + abs(xs[i] - xs[i+1])
+      
+      if (l > threshold & xs[i] > xs[i-1] & xs[i] > xs[i+1]) {
+        # up spike
+        spikes <- c(spikes, i)
+        off <- -2
+      } else if (l > threshold & xs[i] < xs[i-1] & xs[i] < xs[i+1]) {
+        # down spike
+        spikes <- c(spikes, i)
+        off <- -2
+      }
+    }
+    off <- off + 1
+  }
+  return(spikes)
+}
+
+spike_series <- function(xs) {
+  d <- abs(diff(xs))
+  spike_series <- c(0, d) + c(d, 0)
+  return(spike_series)
+}
+
+spike_test <- function(xs, n_std) {
+  spike_series <- spike_series(xs)
+  mu = mean(spike_series)
+  sigma = sd(spike_series)
+  n_spikes <- sum(spike_series > mu + n_std*sigma)
+  
+  return(n_spikes)
+}

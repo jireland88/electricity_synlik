@@ -1,0 +1,5 @@
+memory profiling: GC profiling: line profiling: sample.interval=10000
+:2153292:2459116:135827440:4547:"doTryCatch" "tryCatchOne" "tryCatchList" "tryCatchList" "tryCatch" "constantFoldCall" "constantFold" "cmp" "cmpSymbolAssign" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" "profvis" 
+#File 1: helper_functions.r
+#File 2: <expr>
+:2206962:2524503:150256512:4479:"seq" 1#5 "extract_days" 2#26 "stats" 2#72 "profvis" 

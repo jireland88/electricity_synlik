@@ -1,0 +1,7 @@
+memory profiling: GC profiling: line profiling: sample.interval=10000
+#File 1: 
+:2318499:2736405:150507336:5698:"getInlineInfo" "isBaseVar" "getFoldFun" "constantFoldCall" "constantFold" "cmp" "cmpPrim2" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpPrim2" "h" "tryInline" "cmpCall" "cmp" "cmpIndices" "cmpSubsetDispatch" "h" "tryInline" "cmpCall" "cmp" "cmpComplexAssign" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" 1#5 "profvis" 
+#File 2: helper_functions.r
+#File 3: <expr>
+:2415010:2778271:172323480:7425:"%in%" 2#7 "extract_days" 1#3 "FUN" "apply" "fdHess" 1#5 "synthetic_likelihood_robust" 1#5 "robust_test" 3#2 "profvis" 
+:2475860:2811394:185942960:9665:2#60 "loss_autoregress" 1#5 "FUN" "apply" "fdHess" 1#5 "synthetic_likelihood_robust" 1#5 "robust_test" 3#2 "profvis" 

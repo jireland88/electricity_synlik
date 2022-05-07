@@ -1,0 +1,87 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[parfill]{parskip}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{natbib}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning}
+\usepackage{floatrow}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{mathtools}
+\usepackage[section]{placeins}
+\usepackage{siunitx}
+
+% load subfiles last
+\usepackage{subfiles}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem*{example}{Example}
+
+\newcommand*\dif{\mathop{}\!\mathrm{d}}
+\newcommand*\sd{\mathop{}\!\text{sd}}
+\newcommand*\iqr{\mathop{}\!\text{IQR}}
+\newcommand*\skewness{\mathop{}\!\text{sk}}
+\newcommand*\kurt{\mathop{}\!\kappa}
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+\newcommand\scalemath[2]{\scalebox{#1}{\mbox{\ensuremath{\displaystyle #2}}}}
+
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\renewcommand{\phi}{\varphi}
+
+\newenvironment{dedication}
+    {\vspace{6ex}\begin{quotation}\begin{center}\begin{em}}
+    {\par\end{em}\end{center}\end{quotation}}
+
+\onehalfspacing
+
+\setlength\intextsep{20pt}
+
+\floatstyle{plaintop}
+\restylefloat{table}
+
+\begin{document}
+	\subfile{cover_page}
+	\newpage
+	\subfile{ack}
+	\newpage
+	\subfile{dedication}
+	\newpage
+	\tableofcontents
+	\newpage
+	\listoffigures
+    \listoftables
+    \newpage
+	\subfile{intro}
+	\subfile{model}
+	\subfile{sl}
+	\subfile{fitting}
+	\subfile{eval}
+	\newpage
+	\bibliographystyle{agsm}
+	\bibliography{synlik}
+\end{document}

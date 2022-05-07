@@ -1,0 +1,99 @@
+library(mvnfast)
+library(nlme)
+library(synlik)
+
+source("models.r")
+source("helper_functions.r")
+
+obs_length <- 100
+true_par <- c(2.852, -0.089, -0.192, log(0.112 / (1 - 0.112)), log(0.114),
+              0.103, log(0.542), log(0.313 / (1 - 0.313)), log(0.453),
+              log(0.95 / (1 - 0.95)))
+
+obs <- do.call(regime_jump_model, as.list(append(true_par, obs_length)))
+ordered_obs <- obs[order(obs)]
+
+stats <- function(xs) {
+  sat <- extract_days(xs, c(5))
+  sun <- extract_days(xs, c(6))
+  
+  reg <- autoregress(xs, 3)
+  
+  shape <- polynomial_regression(xs[order(xs)], ordered_obs, 2)
+  
+  #gam <- gamma(xs, TRUE)
+  
+  return(c(mean(xs), sd(xs), mean(sat), mean(sun),
+           reg[1], reg[2], reg[3], reg[4],
+           shape[1], shape[2], shape[3]))
+}
+
+loss <- function(s, xs) {
+  out <- loss_normal(xs, s[1], s[2])
+  out <- out + loss_quadratic(extract_days(xs, c(5)), s[3])
+  out <- out + loss_quadratic(extract_days(xs, c(6)), s[4])
+  out <- out + loss_autoregress(xs, 3, c(s[5], s[6], s[7], s[8]))
+  out <- out + loss_poly(xs[order(xs)], ordered_obs, c(s[9], s[10], s[11]))
+  #out <- out + loss_gamma(xs, s[12], s[12] / s[1])
+  
+  return(out)
+}
+
+synthetic_likelihood <- function(pars, obs_length, s_obs) {
+  sim <- do.call("regime_jump_model", as.list(append(pars, obs_length)))
+  s_sim <- stats(sim)
+  
+  H <- fdHess(s_sim, loss, xs = sim)$Hessian
+  
+  gr <- matrix(0, nrow = length(sim), ncol = length(s_sim))
+  for (i in seq_along(sim)) {
+    gr[i, 1:2] <- gradient_normal(sim[i], s_sim[1], s_sim[2])
+    
+    if ((i - 1) %% 7 == 5) {
+      gr[i, 3] <- gradient_quadratic(sim[i], s_sim[3])
+    } else if ((i - 1) %% 7 == 6) {
+      gr[i, 4] <- gradient_quadratic(sim[i], s_sim[4])
+    }
+    
+    if (i > 3) {
+      gr[i, 5:8] <- gradient_autoregress(c(sim[i - 1], sim[i - 2], sim[i - 3]),
+                                  sim[i],
+                                  c(s_sim[5], s_sim[6], s_sim[7], s_sim[8]))
+    }
+    
+    gr[i, 9:11] <- gradient_poly(sim[i], obs[i], c(s_sim[9], s_sim[10], s_sim[11]))
+    
+    #gr[i, 12] <- gradient_gamma(sim[i], s_sim[12], s_sim[12] / s_sim[1])[1]
+  }
+  
+  V <- cov(gr) * obs_length
+  
+  H_inv <- solve(H)
+  
+  Sigma <- H_inv %*% V %*% H_inv
+
+  out <- dmvn(s_obs, s_sim, Sigma, log = TRUE)
+  
+  return(out)
+}
+
+s_obs <- stats(obs)
+
+likfun <- function(params) {
+  return(synthetic_likelihood(params, obs_length, s_obs))
+}
+
+print(likfun(true_par))
+
+res <- synlik:::ml(likFun = likfun,
+                   initPar = true_par,
+                   initCov = diag(c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))^2,
+                   np = 50,
+                   niter = 200)
+
+options(repr.plot.width = 10, repr.plot.height = 10)
+par(mfrow = c(5, 2), mar=c(1, 1, 1, 1))
+for (i in 1:10) {
+  plot(res$estim[, i])
+  abline(h = true_par[i], col = 2)
+}

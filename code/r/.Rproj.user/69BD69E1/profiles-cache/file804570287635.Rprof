@@ -1,0 +1,6 @@
+memory profiling: GC profiling: line profiling: sample.interval=10000
+:2168907:2520403:136690792:4395:"h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" "profvis" 
+#File 1: <expr>
+:2219103:2581355:150176376:4125:"exists" "findCenvVar" "getInlineInfo" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" 1#79 "profvis" 
+:2263857:2639600:161219800:3443:"%in%" "getFoldFun" "constantFoldCall" "constantFold" "cmp" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" 1#53 "profvis" 
+:2309429:2667396:173209456:3750:"h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" 1#85 "profvis" 

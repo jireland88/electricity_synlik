@@ -1,0 +1,5 @@
+memory profiling: GC profiling: line profiling: sample.interval=10000
+:2166104:2503485:136271408:4287:"%in%" "getInlineInfo" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" "profvis" 
+#File 1: <expr>
+:2217536:2565258:150135384:4249:"make.callContext" "cmpCall" "cmp" "cmpSymbolAssign" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" 1#79 "profvis" 
+:2266511:2595851:163703064:3999:"putconst" "cb$putcode" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "compiler:::tryCmpfun" 1#43 "profvis" 
