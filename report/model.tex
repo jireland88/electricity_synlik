@@ -42,7 +42,7 @@ This completes the specification of the model. The next section will look at how
 \label{subsec:constr-par}
 In the model, there are several constrained parameters. These will be handled by introducing unconstrained transformed parameters. Consider the functions $f(x) = e^x$ and $g(x) = \frac{e^x}{1 - e^x}$. Both functions are defined on $\mathbb{R}$ and are invertible. Further, the image of $f$ is $(0, \infty)$ and the image of $g$ is $(0,1)$. Thus, for the parameters constrained to $(0, \infty)$, unconstrained parameters $\tau_{\sigma_i}$ where $\sigma_i = f(\tau_{\sigma_i})$ for $i=0, 1, -1$ can be used. Similarly, unconstrained parameters $\tau_p$ and $\tau_{\alpha_j}$ where $p = g(\tau_p)$ and $\alpha_j = g(\tau_{\alpha_j})$ for $j=0,-1$ can be used for the parameters constrained to $(0,1)$. Now, the task is to infer unconstrained parameters: $\mu_0, \beta_1, \beta_2, \tau_{\alpha_0}, \tau_{\sigma_0}, \mu_1, \tau_{\sigma_1}, \tau_{\alpha_{-1}}, \tau_{\sigma_{-1}}$ and $\tau_p$.
 
-Before introducing Synthetic Likelihoods, it is beneficial to look at some example trajectories to better understand of how varying certain parameters affect the model.
+Prior to introducing Synthetic Likelihoods, the reader will benefit from looking at example trajectories to better understand of how varying certain parameters affect the model.
 
 \subsection{Example Trajectories}
 
@@ -52,16 +52,17 @@ As will be seen in Sections~\ref{sec:sl} and~\ref{sec:fitting}, the process of c
 \caption{Fitted Parameter Values for UK
 \label{tab:uk-val}
 Telerate Market \citep{huisman_mahieu_2003}}
+\adjustbox{max width=\textwidth}{
 \begin{tabular}{@{}lllllllllll@{}}
 \toprule
 \textbf{Parameter}: & $\mu_0$ & $\beta_1$ & $\beta_2$ & $\alpha_0$ & $\sigma_0$ & $\mu_1$ & $\sigma_1$ & $\alpha_{-1}$ & $\sigma_{-1}$ & $p$  \\
 \midrule
 \textbf{Value}: & $2.852$   & $-0.089$    & $-0.192$    & $0.112$      & $0.144$      & $0.103$   & $0.542$      & $0.313$         & $0.453$         & $0.95$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-First, consider the mean reversion parameter $\alpha_0$. In Figure~\ref{fig:mr_param} it can be seen that setting $\alpha_0 = 0$ makes the resulting trajectory smoother and there appears to be a downwards trend that would have been rectified by introducing some mean-reversion. When it comes to using Synthetic Likelihoods, as will be seen in Section~\ref{sec:sl}, statistics need to be chosen that represent the dynamics of the model. For example, the plots in Figure~\ref{fig:mr_param} suggest different relationships between $s(t)$ and $s(t-1)$. Thus, autocorrelation coefficients may be useful statistics to include.
+First, consider the mean reversion parameter $\alpha_0$. Figure~\ref{fig:mr_param} shows that setting $\alpha_0 = 0$ makes the resulting trajectory smoother and there appears to be a downwards trend that would have been rectified by introducing some mean-reversion. For Synthetic Likelihoods, as will be seen in Section~\ref{sec:sl}, statistics need to be chosen that represent the dynamics of the model. For example, the plots in Figure~\ref{fig:mr_param} suggest different relationships between $s(t)$ and $s(t-1)$. Thus, autocorrelation coefficients may be useful statistics to include.
 
 \begin{figure}[H]
     \centering

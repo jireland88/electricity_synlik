@@ -1,6 +1,6 @@
 \section{Synthetic Likelihoods}
 \label{sec:sl}
-There are two key motivators for exploring the use of Synthetic Likelihoods in this set-up. The first is that Model $\mathcal{A}$ has no (unconditioned) tractable likelihood function. This is caused by the regime-switching nature of the model. Following \cite{huisman_mahieu_2003}, separate likelihood functions could be obtained by conditioning on each regime. Then, the Kalman Filter could be applied to obtain Maximum Likelihood Estimates. However, there are good reasons to seek a method which does not require the Kalman Filter.
+There are two key motivators for exploring the use of Synthetic Likelihoods in this set-up. The first is that Model $\mathcal{A}$ has no (unconditioned) tractable likelihood function and the second is the double penalty effect. The first is caused by the regime-switching nature of the model. Following \cite{huisman_mahieu_2003}, separate likelihood functions could be obtained by conditioning on each regime. Then, the Kalman Filter could be applied to obtain Maximum Likelihood Estimates. However, there are good reasons to seek a method which does not require the Kalman Filter.
 
 One reason is that the Kalman Filter puts restrictions on how the individual regimes can be specified. In particular, the Kalman Filter requires the model to be written in the form
 \begin{equation}
@@ -11,9 +11,9 @@ One reason is that the Kalman Filter puts restrictions on how the individual reg
 \end{equation}
 where $\pmb{x}(t)$ is the state of the system, $\pmb{\Phi}(t + 1 ;t)$ is a transition matrix, $\pmb{u}(t)$ is a zero-mean Normal random variable, $\pmb{M}(t)$ is a matrix and $\pmb{y}(t)$ is the output of the system; all at time $t$ \citep{kalman_1960}. For Model $\mathcal{A}$, it means the distribution of the spikes must be Normal (Equation~\ref{eqn:spike}). This is an issue since the spikes should always be positive which under a Normal distribution will not always be the case. It is more appropriate to replace the Normal distribution with the Log-Normal distribution. This is possible with Synthetic Likelihoods but not with the Kalman Filter. In short, Synthetic Likelihoods offer the opportunity to expand upon Model $\mathcal{A}$ in useful and meaningful ways.
 
-The second motivator for using Synthetic Likelihoods is caused by the double penalty effect or `double penalty problem'. The classical `double penalty problem' refers to the modelling of rainfall. Specifically, where a model that accurately predicts intensity, size and timing but is off on location incurs a `double penalty' with respect to point-wise error measures \citep{keil_craig_2009}.
+The second motivator for using Synthetic Likelihoods is the double penalty effect or `double penalty problem'. The classical `double penalty problem' refers to the modelling of rainfall. Specifically, a model that accurately predicts intensity, size and timing but is off on location incurs a `double penalty' with respect to point-wise error measures \citep{keil_craig_2009}.
 
-In Model $\mathcal{A}$, the double penalty effect occurs in the following sense. First, the regime that the model is in on day $t$ is a hidden state. Thus, it is not known when the price spikes occur. Consider Figure~\ref{fig:double_penalty}. There are two trajectories. The observed trajectory and a simulated trajectory. The simulated trajectory has spikes of a similar magnitude and frequency to the spikes of the observed trajectory. Perhaps the parameters used to produce the simulation are good parameters? If one were to successively sample with these parameters, one would imagine the situation displayed in Figure~\ref{fig:double_penalty} would be common. The simulation would have approximately the right number and size of spikes, but they would rarely coincide. This is the double penalty effect.
+In Model $\mathcal{A}$, the double penalty effect occurs in the following sense. First, the regime that the model is in on day $t$ is a hidden state. Thus, it is not known when the price spikes occur. Consider Figure~\ref{fig:double_penalty}. There are two trajectories. The observed trajectory and a simulated trajectory. The simulated trajectory has spikes of a similar magnitude and frequency to the spikes of the observed trajectory. This suggests the parameters used to generate the simulated trajectory are `good' parameters. Repeatedly sampling with these parameters would often produce similar situations to Figure~\ref{fig:double_penalty}. The simulations would have approximately the right number and size of spikes, but they would rarely coincide. This results in the double penalty effect.
 
 \begin{figure}[H]
     \centering
@@ -24,14 +24,14 @@ In Model $\mathcal{A}$, the double penalty effect occurs in the following sense.
 
 One solution would be to integrate out the hidden state from the joint density of the observations and the hidden state, as with the Kalman Filter. However, this is undesirable as it restricts how Model $\mathcal{A}$ can be specified. There may be particle filter algorithms that could accomplish this without restricting the specification of model $\mathcal{A}$, but they are computationally intensive and beyond the scope of this project. Thus, a method of parameter inference that does not require integrating out the hidden state is required.
 
-Synthetic Likelihoods, as will be seen in Section~\ref{subsec:sl-method}, do not need a tractable likelihood function. Further the `double penalty' effect can be solved by only choosing statistics that are agnostic to the locations of the price spikes. There is no need to integrate out the hidden state. Now there is sufficient motivation, Synthetic Likelihoods can be introduced.
+Synthetic Likelihoods, as will be seen in Section~\ref{subsec:sl-method}, do not need a tractable likelihood function. Further the `double penalty' effect can be solved by only choosing statistics that are agnostic to the locations of the price spikes. There is no need to integrate out the hidden state. Now that there is sufficient motivation, Synthetic Likelihoods can be introduced.
 
 \subsection{Synthetic Likelihood Estimation}
 \label{subsec:sl-method}
 
-Synthetic Likelihood Estimation will be introduced in comparison to Maximum Likelihood Estimation. With Maximum Likelihood Estimation  parameters are chosen to maximise the chance of producing the observed trajectory \citep[p.~226]{rossi_2018}. With Synthetic Likelihood Estimation, one first selects summary statistics that characterise the dynamics of the model, then chooses parameters that maximise the chance of producing the observed summary statistics (according to the log-likelihood of a multivariate Normal distribution).
+Synthetic Likelihood Estimation will be introduced in comparison to Maximum Likelihood Estimation. With Maximum Likelihood Estimation, parameters are chosen to maximise the chance of producing the observed trajectory \citep[p.~226]{rossi_2018}. With Synthetic Likelihood Estimation, first summary statistics that characterise the dynamics of the model are selected, then parameters are chosen that maximise the likelihood of producing the observed summary statistics. To compute the likelihood, it is assumed that the summary statistics follow a multivariate Normal distribution.
 
-Crucially, there is no need for a tractable likelihood function and the double penalty effect need not apply. The only requirements are to be able to sample from the model and choose appropriate summary statistics.
+Crucially, there is no need for a tractable likelihood function and the double penalty effect need not apply. The two requirements are a) the ability to sample from the model and b) to choose appropriate summary statistics.
 
 The method is precisely defined in Algorithm~\ref{alg:sl} \citep{fasiolo_pya_wood_2016}.
 
@@ -76,9 +76,9 @@ First, the Zero-Inflated Gamma random variable needs defining.
     Then, X = (1-B)G, is a Zero-Inflated Gamma random variable with shape parameter $\alpha$, rate parameter $\beta$ and zero parameter $p$. In this case, write $X \sim \text{ZIG}(\alpha, \beta, p)$.
 \end{definition}
 
-With this definition, one can perform Synthetic Likelihood Estimation.
+With this definition, Synthetic Likelihood Estimation can be performed.
 
-Let $X \sim \text{ZIG}(\alpha, \beta, p)$. For this example, choose the true parameters to be $\alpha^* = 3$, $\beta^* = 1$ and $p^* = 0.3$. Next, generate a sample of $m = 2000$ observations. This will be the observed trajectory denoted $\pmb{y}^0$. To construct the Synthetic Likelihood, summary statistics need to be chosen. It makes sense to use the sample mean and standard deviation since, for a Gamma distribution, these can be calculated in terms of $\alpha$ and $\beta$. It also makes sense to include the proportion of zeros to correctly inference the true value of $p$. Let $\bar{x}(\pmb{y}^i)$ denote the sample mean and $\text{sd}(\pmb{y}^i)$ the standard deviation of trajectory $\pmb{y}^i$. So for trajectory $\pmb{y}^i$, compute
+Let $X \sim \text{ZIG}(\alpha, \beta, p)$. For this example, choose the true parameters to be $\alpha^* = 3$, $\beta^* = 1$ and $p^* = 0.3$. Next, generate a sample of $m = 2000$ observations. This will be the observed trajectory denoted $\pmb{y}^0$. To construct the Synthetic Likelihood, summary statistics need to be chosen. Good choices of statistics include the sample mean and standard deviation since, for a Gamma distribution, these can be calculated in terms of $\alpha$ and $\beta$. Another useful statistic is the proportion of zeros which is needed to correctly infer the true value of $p$. Let $\bar{x}(\pmb{y}^i)$ denote the sample mean and $\text{sd}(\pmb{y}^i)$ the standard deviation of trajectory $\pmb{y}^i$. So for trajectory $\pmb{y}^i$, compute
 \begin{equation}
 S(\pmb{y}^i) = (\bar{x}(\pmb{y}^i), \text{sd}(\pmb{y}^i), \frac{1}{m}\sum_{j=1}^m \mathbb{I}\{y^i_j = 0\}).
 \end{equation}
@@ -93,17 +93,17 @@ An estimate of the Synthetic Likelihood can now be computed for any $\pmb{\theta
     \label{fig:no_robust_zig}
 \end{figure}
 
-Synthetic Likelihood Estimation is a computationally intensive operation which is due to the large number of samples that need to be generated to evaluate the likelihood at each stage of the optimisation. Indeed, in this example, $50$ Synthetic Likelihoods were simulated at each stage of the optimisation. Further, each Synthetic Likelihood required $100$ samples to generate a likelihood. Thus, the entire optimisation generated $150 \times 50 \times 100 = 750000$ samples. This does not pose a problem for the ZIG example as the number of statistics is small. However, as the number of statistics grows, this becomes a significant issue as more samples are required to obtain a less noisy estimate of $\hat{\pmb{\Sigma}}_{\pmb{\theta}}$. In the next section, the Robust Covariance Matrix (RCM) will be introduced. This will reduce the number of samples required per likelihood to \emph{one}.
+Synthetic Likelihood Estimation is a computationally intensive operation. This is due to the large number of samples that need to be generated to evaluate the likelihood at each stage of the optimisation. In this example, $50$ Synthetic Likelihoods were simulated at each stage of the optimisation and each Synthetic Likelihood generated $100$ samples. Thus, the entire optimisation generated $150 \times 50 \times 100 = 750000$ samples. This does not pose a problem for the ZIG example as the number of statistics is small. However, as the number of statistics grows, this becomes a significant issue as more samples are required to obtain a less noisy estimate of $\hat{\pmb{\Sigma}}_{\pmb{\theta}}$. In the next section, the Robust Covariance Matrix (RCM) will be introduced. This will reduce the number of samples required per likelihood to \emph{one}.
 
 \subsection{Robust Covariance Matrix}
 \label{subsec:rcm}
-To motivate this section notice that, in Algorithm~\ref{alg:sl}, $\hat{\pmb{\mu}}_{\pmb{\theta}}$ could be estimated by simply evaluating the statistics over a sufficiently long trajectory. The Robust Covariance Matrix can be used in the same way to estimate $\hat{\pmb{\Sigma}}_{\pmb{\theta}}$. Thus, only one sample is needed to produce a likelihood. However, in order to use the Robust Covariance Matrix, only a certain class of statistics can be used - $M$-estimators \citep{huber_1967}.
+To motivate this section notice that, in Algorithm~\ref{alg:sl}, $\hat{\pmb{\mu}}_{\pmb{\theta}}$ could be estimated by simply evaluating the statistics over a sufficiently long trajectory. The Robust Covariance Matrix can be used in the same way to estimate $\hat{\pmb{\Sigma}}_{\pmb{\theta}}$. Thus, only one sample is needed to produce a likelihood. However, in order to use the Robust Covariance Matrix, only a certain class of statistics can be used - $M$-Estimators \citep{huber_1967}.
 
 \begin{definition}
     An $M$-Estimator is a solution $\theta$ that minimises $L = \sum_{i=1}^n \rho(x_i, \theta)$ where $\rho$ is an arbitrary function.
 \end{definition}
 
-In Section~\ref{subsec:theoretical-properties}, it will be shown that $M$-estimators are asymptotically Normal. As an example of an $M$-Estimator, it will be shown that any Maximum Likelihood Estimator is an $M$-Estimator.
+In Section~\ref{subsec:theoretical-properties}, it will be shown that $M$-Estimators are asymptotically Normal. As an example of an $M$-Estimator, it will be shown that any Maximum Likelihood Estimator is an $M$-Estimator.
 
 \begin{proposition}
     \label{prop:mle-is-m}
@@ -113,7 +113,7 @@ In Section~\ref{subsec:theoretical-properties}, it will be shown that $M$-estima
 \begin{proof}
 Let $X_1, X_2, \ldots, X_n$ be a sequence of independent and identically distributed random variables with density $f(x|\theta)$ where $\theta$ is a parameter. Let $x_1, x_2, \ldots, x_n$ be the realisations of those  respective random variables. Then, the Maximum Likelihood Estimator for $\theta$ is given by
 \[ \hat{\theta} = \argmax_{\theta\in \Theta} \left[ \text{log }  \prod_{i=1}^n f(x_i|\theta) \right] = \argmin_{\theta\in \Theta} \left[ \sum_{i=1}^n -\text{log } f(x_i|\theta) \right].\]
-Thus, taking $\rho(x_i, \theta) = -\text{log } f(x_i | \theta)$, one obtains that the Maximum Likelihood Estimator of $\theta$ is an $M$-Estimator.
+Thus, taking $\rho(x_i, \theta) = -\text{log } f(x_i | \theta)$ demonstrates that the Maximum Likelihood Estimator of $\theta$ is an $M$-Estimator.
 \end{proof}
 
 In order to define the Robust Covariance Matrix, the sample covariance is needed. The definition below is from \cite{krzanowski_2000}. 
@@ -206,12 +206,12 @@ The next section will propose a heuristic for determining whether a set of stati
 
 A good statistic must have the following two characteristics:
 
-\begin{itemize}
-    \item High correlation with model parameters,
-    \item Low correlation with other statistics.
-\end{itemize}
+\begin{enumerate}
+    \item high correlation with model parameters; and
+    \item low correlation with other statistics.
+\end{enumerate}
 
-The first criterion ensures the statistics provide meaningful information about the model parameters. The second criterion is also important as too much mutual correlation could result in singular covariance matrices. Thus, correlation diagrams, as shown in Figure~\ref{fig:corr_diags}, can be produced to build an idea for how a set of statistics may perform. These are particularly useful since it is far more computationally efficient to compute correlations than it is to perform Synthetic Likelihood Estimation.
+The first criterion ensures the statistics provide meaningful information about the model parameters. The second criterion is desirable as too much mutual correlation could result in singular covariance matrices. Thus, correlation diagrams, as shown in Figure~\ref{fig:corr_diags}, can be produced to build an idea for how a set of statistics may perform. These are particularly useful since it is far more computationally efficient to compute correlations than it is to perform Synthetic Likelihood Estimation.
 
 \begin{figure}[H]
     \centering
@@ -220,7 +220,7 @@ The first criterion ensures the statistics provide meaningful information about 
     \label{fig:corr_diags}
 \end{figure}
 
-Concretely, to produce these diagrams, choose sample parameters $\pmb{\theta}$ and covariance matrix $\Sigma$. Then, several sets of parameters from $\mathcal{N}(\pmb{\theta}, \Sigma)$, a multivariate Normal distribution, are sampled. For each parameter, an observed trajectory is produced and its summary statistics evaluated. The correlations between mutual statistics and between statistics and parameters can then be computed. Algorithm~\ref{alg:cor_diag} defines this process precisely. For notation, the $i$'th row of matrix $X$ is denoted by $X_{i*}$ and the $j$'th column by $X_{*j}$.
+Concretely, to produce these diagrams, choose sample parameters $\pmb{\theta}$ and covariance matrix $\Sigma$. Then, several sets of parameters from $\mathcal{N}(\pmb{\theta}, \Sigma)$, a multivariate Normal distribution, are sampled. For each set of parameters, an observed trajectory is produced and its summary statistics evaluated. The correlations between mutual statistics and between statistics and parameters can then be computed. Algorithm~\ref{alg:cor_diag} defines this process precisely. For notation, the $i$'th row of matrix $X$ is denoted by $X_{i*}$ and the $j$'th column by $X_{*j}$.
 
 \begin{singlespace}
     \begin{algorithm}[H]
@@ -254,9 +254,9 @@ Concretely, to produce these diagrams, choose sample parameters $\pmb{\theta}$ a
     \end{algorithm}
 \end{singlespace}
 
-As a note from experience, it is best to first obtain a set of statistics that have strong correlations with all model parameters. Then, if Synthetic Likelihood Estimation fails, remove the most correlated statistics and repeat.
+Speaking from experience, it is best to first obtain a set of statistics that have strong correlations with all model parameters. Then, if Synthetic Likelihood Estimation fails, remove the most correlated statistics and repeat.
 
-These diagrams can be computed for the Zero-Inflated Gamma Example. They are displayed in Figure~\ref{fig:zigcd}. One can see each parameter is correlated with at least one of the statistics. There is correlation between the mean and standard deviation statistics but this is not enough to upset the Synthetic Likelihood Estimation.
+These diagrams can be computed for the Zero-Inflated Gamma Example. They are displayed in Figure~\ref{fig:zigcd}. Each parameter is correlated with at least one of the statistics. There is correlation between the mean and standard deviation statistics but this is not enough to upset the Synthetic Likelihood Estimation.
 
 \begin{figure}[H]
         \centering
@@ -306,11 +306,11 @@ The optimiser works as follows. It takes in initial values for $\pmb{\theta}$ an
 \end{algorithm}
 \end{singlespace}
 
-The next section will prove some additional important $M$-Estimators.
+The next section will provide additional important $M$-Estimators.
 
 \subsection{\texorpdfstring{$M$}{M}-Estimators}
 
-In Section~\ref{subsec:rcm}, it was shown that Maximum Likelihood Estimators are $M$-Estimators. In preparation for fitting Model $\mathcal{A}$, it will also be shown that OLS regression estimators and the sample mean under a quadratic loss function are also $M$-Estimators.
+In Section~\ref{subsec:rcm}, it was shown that Maximum Likelihood Estimators are $M$-Estimators. In preparation for fitting Model $\mathcal{A}$, it will also be shown that Ordinary Least Squares (OLS) regression estimators and the sample mean under a quadratic loss function are also $M$-Estimators.
 
 First, that OLS regression estimators are $M$-Estimators.
 
@@ -362,7 +362,7 @@ Finally, before fitting Model $\mathcal{A}$, the asymptotic normality of $M$-Est
 
 For the purposes of this section, $\to_{\mathcal{D}}$ will denote convergence in distribution and $\to_{\mathbb{P}}$ will denote convergence in probability.
 
-The goal will be to show that an $M$-Estimator is asymptotically normal in the following sense. Suppose $X_1, X_2, \dots$ are independent and identically distributed random variables. Also suppose $(\hat{\theta}_n)$ is a sequence of $\mathcal{M}$-estimators. That is
+The goal will be to show that an $M$-Estimator is asymptotically normal in the following sense. Suppose $X_1, X_2, \dots$ are independent and identically distributed random variables. Also suppose $(\hat{\theta}_n)$ is a sequence of $M$-estimators. That is
 \begin{equation}
     \label{eqn:estimators}
     \hat{\theta}_n = \argmin_{\theta} \sum_{i=1}^n \rho(X_i, \theta)
@@ -396,7 +396,7 @@ Considering the Taylor expansion of $\rho'_n$ around $\theta^*$ (this is justifi
     \label{eqn:taylor}
     \rho'_n(\hat{\theta}_n) \approx \rho'_n(\theta^*) + \rho''_n(\theta^*)(\hat{\theta}_n - \theta^*).
 \end{equation}
-Since $\hat{\theta}_n$ minimises $\rho_n(\theta)$, it must be that $\rho'(\hat{\theta}_n) = 0$. Thus, setting the right hand side of Equation~\ref{eqn:taylor} to zero, one obtains
+Since $\hat{\theta}_n$ minimises $\rho_n(\theta)$, it must be that $\rho'(\hat{\theta}_n) = 0$. Thus, setting the right hand side of Equation~\ref{eqn:taylor} to zero yields
 \begin{equation}
     \sqrt{n}(\hat{\theta}_n - \theta^*) \approx \frac{-\frac{1}{\sqrt{n}}\rho'_n(\theta^*)}{\frac{1}{n}\rho''_n(\theta^*)}.
 \end{equation}
@@ -404,17 +404,17 @@ Thus, an application of Slutsky's theorem gives
 \begin{equation}
     \sqrt{n}(\hat{\theta}_n - \theta^*) \to_\mathcal{D} \mathcal{N}(0, J_1(\theta^*)^{-1} V_1(\theta^*) J_1(\theta^*)^{-1}).
 \end{equation}
-which is \emph{almost} what was desired. To finish it off, a second use of Slutsky's theorem with the consistency of $\hat{\theta}_n$ and applying `sloppy' asymptotics one obtains
+which is \emph{almost} what was desired. To finish it off, a second use of Slutsky's theorem with the consistency of $\hat{\theta}_n$ and applying `sloppy' asymptotics yields
 \begin{equation}
     \hat{\theta}_n \approx \mathcal{N}(\theta^*, \hat{J}_n(\hat{\theta}_n)^{-1} \hat{V}_n(\hat{\theta}_n) \hat{J}_n(\hat{\theta}_n)^{-1})
 \end{equation}
-where $\hat{J}_n(\theta) = - \rho''_n(\theta)$, the observed Fisher information and $\hat{V}_n(\theta) = \sum_{i=1}^n \rho'_n(\theta)^2$.
+where $\hat{J}_n(\theta) = - \rho''_n(\theta)$, the observed Fisher Information and $\hat{V}_n(\theta) = \sum_{i=1}^n \rho'_n(\theta)^2$.
 This sketch proof works almost identically if $\theta$ is a vector instead of a scalar. In this case, $\hat{J}_n$ is the Hessian and $\hat{V}_n$ is the covariance of the gradient of  $\rho_n$. Thus, $\hat{J}_n(\hat{\theta}_n)^{-1} \hat{V}_n(\hat{\theta}_n) \hat{J}_n(\hat{\theta}_n)^{-1}$ is \emph{precisely} the Robust Covariance Matrix.
 
 Now for a more rigorous theorem from \cite{pollard_1985}. First, stochastic differentibility will be defined. Then, the theorem itself will be stated.
 
 \begin{definition}
-    Let $\rho$ be a function and $\theta^*$ a point on the interior of the domain of $\rho$. Stochastic differentiability of $\rho$ at $\theta^*$ means there exists a linear approximation of $\rho$ near $\theta^*$ with remainder term $r(x,\theta)$ that is small `in an average sense' compared with $|\theta - \theta^*|$. Concretely, this means one can write
+    Let $\rho$ be a function and $\theta^*$ a point on the interior of the domain of $\rho$. Stochastic differentiability of $\rho$ at $\theta^*$ means there exists a linear approximation of $\rho$ near $\theta^*$ with remainder term $r(x,\theta)$ that is small `in an average sense' compared with $|\theta - \theta^*|$. Concretely, it is possible to write
     \begin{equation}
         \label{eqn:stoch-diff-form}
         \rho(x, \theta) = \rho(x, \theta^*) + (\theta - \theta^*)^T \Delta(x) + |\theta - \theta^*|r(x,\theta)
@@ -422,7 +422,7 @@ Now for a more rigorous theorem from \cite{pollard_1985}. First, stochastic diff
     where $\Delta$ denotes a vector of functions that depend only on $x$.
 \end{definition}
 
-A more rigorous notation of what it means for $r(x,\theta)$ to be small `in an average sense' compared with $|\theta - \theta^*|$ is given in \cite{pollard_1985} as the Stochastic Differentiability Condition. Now for the theorem.
+A more rigorous definition of what it means for $r(x,\theta)$ to be small `in an average sense' compared with $|\theta - \theta^*|$ is given in \cite{pollard_1985} as the Stochastic Differentiability Condition. Now for the theorem.
 
 \begin{theorem}
 \label{the:aymp}
@@ -437,6 +437,6 @@ A more rigorous notation of what it means for $r(x,\theta)$ to be small `in an a
     Then $\sqrt{n}(\hat{\theta}_n - \theta^*) \to_{\mathcal{D}} \mathcal{N}(0, J^{-1}\mathcal{P}(\Delta \Delta^T)J^{-1})$.
 \end{theorem}
 
-The result of this theorem matches what was found with the sketch proof but is more rigorous. The conclusion is that using the Robust Covariance Matrix as the covariance of a multivariate Normal distribution makes sense and the multivariate Normal assumption is justified.
+The result of this theorem matches what was found with the sketch proof but is more rigorous. The conclusion is that using the Robust Covariance Matrix as the covariance of a multivariate Normal distribution and the multivariate Normal assumption are justified.
 
-The next section will tackle the fitting of Model $\mathcal{A}$.
+The next section will fit Model $\mathcal{A}$ using Synthetic Likelihood Estimation.

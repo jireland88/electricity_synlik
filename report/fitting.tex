@@ -1,8 +1,8 @@
 \section{Fitting}
 \label{sec:fitting}
-This section will fit Model $\mathcal{A}$ using Synthetic Likelihood Estimation. Since Model $\mathcal{A}$ is quite complicated, this section will start by looking at a simplified model where there is no regime switching. Fitting this simplified model will provide the building blocks to fit Model $\mathcal{A}$.
+Since Model $\mathcal{A}$ is quite complicated, this section will start by looking at a simplified model where there is no regime switching. Fitting this simplified model will provide the building blocks to fit Model $\mathcal{A}$.
 
-To start with, synthetic data will be used instead of real data. A sample can be drawn using fitted values  for the UK power data (Table~\ref{tab:uk-val}) from \cite{huisman_mahieu_2003}. This sample will be used as the observed trajectory which will then be used to fit the model. This allows for a comparison between the fitted parameters and the original parameters to check the statistics properly explain the dynamics of the model.
+To start with, synthetic data will be used instead of real data. A sample will be drawn using fitted values  for the UK power data (Table~\ref{tab:uk-val}) from \cite{huisman_mahieu_2003}. This sample will be used as the observed trajectory which will then be used to fit the model. This allows for a comparison between the fitted parameters and the original parameters to check the statistics properly explain the dynamics of the model.
 
 In Section \ref{subsec:fit-real}, historic data from Nordpool will be used to fit the model.
 
@@ -15,7 +15,7 @@ for $t > 1$. Constrained parameters $\alpha_0$ and $\sigma_0$ still need to be r
 
 \subsubsection{Choice of Statistics}
 
-Now, the statistics need to be chosen. For $\mu_0$ and $\sigma_0$, include the Maximum Likelihood Estimates from a Normal distribution. Denote the sample mean as $\bar{x}(\cdot)$ and standard deviation as $\sd{(\cdot)}$. Additionally, $\beta_1$ and $\beta_2$ represent the price increment on a Saturday and a Sunday respectively. Thus, to infer these parameters, include the mean price on a Saturday, denoted as $\bar{x}_5(\cdot)$, and on a Sunday, denoted as $\bar{x}_6(\cdot)$. Notice, Monday is considered day $0$, so Saturday is day $5$ and Sunday is day $6$ in this notation. Finally, statistics are needed for $\alpha_0$, the mean-reversion parameter. There are a few statistics that may be useful. First, mean-reversion is to do with the relationship between $x(t)$ and $x(t-1)$. Thus, it would make sense to include autocorrelation coefficients. However, these are not $M$-estimators. Taking a closer look at the dynamics of Model $\mathcal{B}$ reveals a similar option - autoregression coefficients. Expanding the Model $\mathcal{B}$ yields
+Now, the statistics need to be chosen. For $\mu_0$ and $\sigma_0$, include the Maximum Likelihood Estimates from a Normal distribution. Denote the sample mean as $\bar{x}(\cdot)$ and standard deviation as $\sd{(\cdot)}$. Additionally, $\beta_1$ and $\beta_2$ represent the price increment on a Saturday and a Sunday respectively. Thus, to infer these parameters, include the mean price on a Saturday, denoted as $\bar{x}_5(\cdot)$, and on a Sunday, denoted as $\bar{x}_6(\cdot)$. Notice, Monday is considered day $0$, so Saturday is day $5$ and Sunday is day $6$ in this notation. Finally, statistics are needed for $\alpha_0$, the mean-reversion parameter. There are a few statistics that may be useful. First, mean-reversion is to do with the relationship between $x(t)$ and $x(t-1)$. Thus, including autocorrelation coefficients might be helpful. However, these are not $M$-Estimators. Taking a closer look at the dynamics of Model $\mathcal{B}$ reveals a similar option - autoregression coefficients. Expanding Model $\mathcal{B}$ yields
 \begin{align}
     s(t) &= f(t) + x(t) \\
     &= f(t) + x(t-1) + \dif{x(t)} \\
@@ -42,13 +42,13 @@ These are shown in Figure~\ref{fig:smcd}. Each parameter is reasonably correlate
         \label{fig:smcd}
 \end{figure}
 
-In order to compute the Robust Covariance Matrix, a loss function is needed. Let $m$ be the observation length and $\pmb{y}^0$ the observed trajectory. A sample trajectory $\pmb{y}^1$ is also needed which the statistics will be evaluated along. For $\bar{x}(\cdot)$ and $\sd{(\cdot)}$, the negative log-likelihood of a Normal distribution will suffice. Write
+In order to compute the Robust Covariance Matrix, a loss function is needed. Let $m$ be the observation length and $\pmb{y}^1$ a sample trajectory. For $\bar{x}(\cdot)$ and $\sd{(\cdot)}$, the negative log-likelihood of a Normal distribution will suffice. Write
 \begin{equation}
     L_{1,2} = -\sum_{i=1}^m \log{f(y^1_i | s_1, s_2^2)}
 \end{equation}
 where $f$ is the density of a Normal random variable with mean $s_1 = \bar{x}(\pmb{y}^1)$ and standard deviation $s_2 = \sd{(\pmb{y}^1})$.
 
-Now, for $\bar{x}_5(\cdot)$ and $\bar{x}_6(\cdot)$, the mean price on a Saturday and a Sunday respectively. Here, a quadratic loss function will be used. That is,
+For $\bar{x}_5(\cdot)$ and $\bar{x}_6(\cdot)$, the mean price on a Saturday and a Sunday respectively, a quadratic loss function will be used. That is,
 \begin{equation}
     L_3 = \frac{1}{2}\sum_{i=1}^m (s_3 - y^1_i)^2 \mathbb{I}\{i \equiv 5 \Mod{7}\}
 \end{equation}
@@ -58,7 +58,7 @@ and
 \end{equation}
 where $s_3 = \bar{x}_5(\pmb{y}^1)$ and $s_4 = \bar{x}_6(\pmb{y}^1)$.
 
-Finally, for the OLS regression estimators, the sum of squared residuals loss function will be used. Write
+Finally, for the OLS regression estimators, the sum of squared residuals will be used. Write
 \begin{equation}
     L_{5,6} = \sum_{i=2}^m [y^1_i - (s_5 + s_6 y^1_{i-1})]^2
 \end{equation}
@@ -139,12 +139,12 @@ $\tau_{\sigma_0}$ & 0.353                    & 2.23                  \\ \bottomr
 \end{tabular}
 \end{table}
 
-The results show that Synthetic Likelihood Estimation, both with and without the Robust Covariance Matrix can achieve convergence to the true parameters. Notably, using the Robust Covariance Matrix increases the RMSE and the number of outliers, this is to be expected since it is a noisy estimator. However, as will be seen when looking at the performance, the Robust Covariance Matrix runs much more quickly. Thus, the observation length can be increased far past what would be computationally reasonable when not using the Robust Covariance Matrix. This itself can significantly should reduce the RMSE due to the asymptotic normality of the $M$-Estimator (Thereom~\ref{the:aymp}).
+The results show that Synthetic Likelihood Estimation, both with and without the Robust Covariance Matrix can achieve convergence to the true parameters. Notably, using the Robust Covariance Matrix increases the RMSE and the number of outliers, this is to be expected since it is a noisy estimator. However, as will be seen when looking at the performance, the Robust Covariance Matrix runs much quicker. Thus, the observation length can be increased far past what would be computationally reasonable when not using the Robust Covariance Matrix. This can significantly reduce the RMSE due to the asymptotic normality of the $M$-Estimator (Thereom~\ref{the:aymp}).
 
 \subsubsection{Performance}
 \label{subsec:perf}
 
-Moving on to performance. This can be analysed by repeatedly timing how long it takes to evaluate a Synthetic Likelihood with and without the Robust Covariance Matrix. In this case, the Synthetic Likelihood of the true parameters (Table~\ref{tab:uk-val}) were evaluated using the R library \emph{microbenchmark}. In Figure~\ref{fig:ss-perf}, violin plots of the evaluation times are shown. The numerical Robust Covariance Matrix is evaluated using the `fdHess' function from the R library \emph{nlme}. It is clear that the Robust Covariance Matrix provides a significant performance boost. Specifically, the median time when not using the Robust Covariance Matrix was $6$ms, about $37\times$ longer than $0.16\text{ms}$, the median time when using the Analytic Robust Covariance Matrix. Additionally, not using the Robust Covariance Matrix takes about $7\times$ longer than $0.87\text{ms}$, the median time when using the Numerical Robust Covariance Matrix. Thus, including the Robust Covariance Matrix with a numerical Hessian estimate significantly improves computational performance. However, the bulk of the computational performance improvement comes when using an analytic Hessian.
+Moving on to performance. This can be analysed by repeatedly timing how long it takes to evaluate a Synthetic Likelihood with and without the Robust Covariance Matrix. In this case, the Synthetic Likelihood of the true parameters (Table~\ref{tab:uk-val}) were evaluated using the R library \emph{microbenchmark}. In Figure~\ref{fig:ss-perf}, violin plots of the evaluation times are shown. The numerical Robust Covariance Matrix is evaluated using the `fdHess' function from the R library \emph{nlme}. It is clear that the Robust Covariance Matrix provides a significant performance boost. Specifically, the median time when not using the Robust Covariance Matrix was $6$ms, about $37\times$ longer than $0.16\text{ms}$, the median time when using the Analytic Robust Covariance Matrix. Additionally, not using the Robust Covariance Matrix takes about $7\times$ longer than $0.87\text{ms}$, the median time when using the Numerical Robust Covariance Matrix. Thus, including the Robust Covariance Matrix with a numerical Hessian estimate significantly improves computational performance. However, it is beneficial to compute the Hessian by hand as there is a further $5\times$ performance increase to be had.
 
 \begin{figure}[H]
         \centering
@@ -165,17 +165,15 @@ The next section will address fitting Model $\mathcal{A}$.
 
 Now that Model $\mathcal{B}$ has been successfully fit, it is time to return to the Model $\mathcal{A}$. Statistics need to be chosen that capture the nature of all parameters. For clarity, the parameters will be split up into the following groups. The weekly shape parameters: $\mu_0, \beta_1$ and $\beta_2$. The volatility parameters: $\sigma_0, \sigma_1$ and $\sigma_{-1}$. The mean reversion parameters: $\alpha_0$ and $\alpha_{-1}$. Finally, the spike parameters: $\mu_1$ and $p$.
 
-To fit the Model $\mathcal{A}$, statistics will need to be chosen that are not $M$-estimators. Future projects may try to find equivalent $M$-estimators.
+To fit Model $\mathcal{A}$, statistics will need to be chosen that are not $M$-Estimators. Future projects may try to find equivalent $M$-Estimators.
 
 Before diving into the individual parameters, as shown in \cite{wood_2010}, including statistics that quantify the `shape of the marginal distribution' can be useful. These can be obtained as the coefficients of the polynomial regression between the ordered differences of the simulated trajectory and the observed trajectory. Ordered differences means the differences $y_{i+1} - y_i$ ordered from smallest to largest. This proves to be a good way to ensure the trajectories produced from fitted parameters follow similar distributions to the distribution of the observed trajectory. This project will use cubic regression and denote the coefficients $\gamma_0(\cdot), \gamma_1(\cdot), \gamma_2(\cdot), \gamma_3(\cdot)$.
 
 For the shape parameters, similar statistics to those chosen for Model $\mathcal{B}$ can be used. For example, for $\mu_0$, the sample mean denoted $\bar{x}(\cdot)$, can be used. For $\beta_1$, the sample mean taken over Saturdays minus the sample mean can be used. This can be written as $(\bar{x}_5 - \bar{x})(\cdot)$. Subtracting the sample mean reduces the correlation between this statistic and the sample mean which will improve the Synthetic Likelihood Estimate. Similarly, $\beta_2$ can be inferred from $(\bar{x}_6 - \bar{x})(\cdot)$.
 
-There are several statistics that provide useful information about the volatility parameters. Most obviously, the sample standard deviation, denoted $\sd{(\cdot)}$, and the interquartile range, denoted $\iqr{(\cdot)}$. However, the maximum of the absolute values of the trajectory will also exhibit some correlation with these parameters. Additionally, first and second order differences may also be of interest. That is, trajectory $\pmb{d}^1$ can be formed by $d^1_i = y_{i+1} - y_i$ and trajectory $\pmb{d}^2$ by $d^2_i = d_{i+1} - d_i$. Then, summary statistics for the distributions of $\pmb{d}^1$ and $\pmb{d}^2$ can be considered. Concretely, statistics such as the sample mean, standard deviation, skew and kurtosis can be calculated for $\pmb{d}^1$ and $\pmb{d}^2$. The sample skew shall be denoted as $\skewness{(\cdot)}$ and sample kurtosis as $\kurt{(\cdot)}$.
+There are several statistics that provide useful information about the volatility parameters. Most obviously, the sample standard deviation, denoted $\sd{(\cdot)}$, and the interquartile range, denoted $\iqr{(\cdot)}$. However, the maximum of the absolute values of the trajectory, denoted $\max{|\cdot|}$, will also exhibit some correlation with these parameters. Additionally, first and second order differences may also be of interest. That is, trajectory $\pmb{d}^1$ can be formed by $d^1_i = y_{i+1} - y_i$ and trajectory $\pmb{d}^2$ by $d^2_i = d^1_{i+1} - d^1_i$. Then, summary statistics for the distributions of $\pmb{d}^1$ and $\pmb{d}^2$ can be considered. Concretely, statistics such as the sample mean, standard deviation, skew, kurtosis and maximum absolute value can be calculated for $\pmb{d}^1$ and $\pmb{d}^2$. The sample skew shall be denoted as $\skewness{(\cdot)}$ and sample kurtosis as $\kurt{(\cdot)}$.
 
-Another statistic that may be of interest for the volatility parameters is the maximum absolute difference, denoted $\max{|\cdot|}$. This statistic can be calculated for $\pmb{y}, \pmb{d}^1$ and $\pmb{d}^2$.
-
-Now for the mean reversion parameters. Again, there are multiple approaches. As with Model $\mathcal{B}$, autoregression coefficients can be used. To account for the regime changing dynamics, it makes sense to regress on the past three days. The regression coefficients will be denoted $\xi_0(\cdot), \xi_1(\cdot), \xi_2(\cdot)$ and $\xi_3(\cdot)$. Additionally, autocorrelation coefficients up to lag 3 can also be explored, these will be denoted $\nu_0(\cdot), \nu_1(\cdot), \nu_2(\cdot)$ and $\nu_3(\cdot)$
+Now for the mean reversion parameters. Again, there are multiple approaches. As with Model $\mathcal{B}$, autoregression coefficients can be used. To account for the regime changing dynamics, it is necessary to regress on the past three days. The regression coefficients will be denoted $\xi_0(\cdot), \xi_1(\cdot), \xi_2(\cdot)$ and $\xi_3(\cdot)$. Additionally, autocorrelation coefficients up to lag 3 can also be explored, these will be denoted $\nu_0(\cdot), \nu_1(\cdot), \nu_2(\cdot)$ and $\nu_3(\cdot)$
 
 Finally, the spike parameters $\mu_1$ and $p$ need to be considered. These parameters introduce skew to the trajectory distribution. Statistics that  measure skew include $\skewness{(\cdot)}$, the Maximum Likelihood Estimators for a Gamma distribution and the difference between the mean and median. The Maximum Likelihood Estimators for the Gamma distribution will be denoted $\theta_1(\cdot)$ and $\theta_2(\cdot)$ for the shape and rate parameters respectively. The median will be denoted $m(\cdot)$. Notably, since a Gamma distribution is defined for support $(0, \infty)$, the Maximum Likelihood Estimators will be evaluated for $(\exp(y_i), y_i \in \pmb{y})$, the exponentiated trajectory. 
 
@@ -196,7 +194,7 @@ These statistics can be investigated using the correlation diagrams from Section
         \label{fig:fmcd}
 \end{figure}
 
-Most statistics can be removed due to either having not enough correlation with model parameters or too much correlation with other statistics. In particular, autoregression coefficients are favoured over autocorrelation coefficients due to their smaller mutual correlation, and all statistics based on the second order differences $\pmb{d}^2$ did not demonstrate enough correlation with model parameters to be included.
+Most statistics can be removed due to either having not enough correlation with model parameters or too much correlation with other statistics. In particular, autoregression coefficients are favoured over autocorrelation coefficients due to their smaller mutual correlation. Further, all statistics based on the second order differences $\pmb{d}^2$ did not demonstrate enough correlation with model parameters to be included.
 
 After some trial and improvement, $\bar{x}$, $\bar{x}_5 - \bar{x}$, $\bar{x}_6 - \bar{x}$, $\xi_1$, $\xi_3$, $\iqr{}$, $\max{|\pmb{d}^1|}$, $\max{|\pmb{y}|}$, $\hat{p}$, $\gamma_0$, $\gamma_1$, $\gamma_2$ and $\gamma_3$ were found, jointly, to be the best performing statistics.
 
@@ -204,20 +202,21 @@ Synthetic Likelihood Estimation can now be performed for Model $\mathcal{A}$. Th
 
 \subsubsection{Checking Convergence}
 
-Before proceeding with this section, one final adjustment needs to be made. Spike parameter $\mu_1$ needs to be replaced with the transformed parameter $\tau_{\mu_1}$ where $\mu_1 = \exp{\tau_{\mu_1}}$. This constrains $\mu_1$ to positive values. This is a useful constraint since the price spikes of interest are positive and negative spikes can upset the Synthetic Likelihood Estimation.
+Before proceeding with this section, one final adjustment needs to be made. Spike parameter $\mu_1$ needs to be replaced with the transformed parameter $\tau_{\mu_1}$ where $\mu_1 = \exp{\tau_{\mu_1}}$. This constrains $\mu_1$ to positive values. This is a necessary constraint as the price spikes of interest are positive and negative spikes can upset the Synthetic Likelihood Estimation.
 
 Now for the simulation study. Using the same process used for Model $\mathcal{B}$, a simulation study can be used to check for convergence to the true parameters (Table~\ref{tab:uk-val}). As before, $50$ simulations were conducted. Box plots of the results are found in Figure~\ref{fig:ss-full}; RMSE values are found in Table~\ref{tab:rmse-full}.
 
 \begin{table}[H]
 \caption{Root Mean Squared Errors for Model $\mathcal{A}$}
 \label{tab:rmse-full}
+\adjustbox{max width=\textwidth}{
 \begin{tabular}{@{}lllllllllll@{}}
 \toprule
 \textbf{Parameter}: & $\mu_0$ & $\beta_1$ & $\beta_2$ & $\alpha_0$ & $\sigma_0$ & $\mu_1$ & $\sigma_1$ & $\alpha_{-1}$ & $\sigma_{-1}$ & $p$  \\
 \midrule
 \textbf{RMSE} ($3$ s.f.): & $0.177$   & $0.0631$    & $0.0560$    & $0.941$      & $3.75$      & $23.7$   & $4.14$      & $0.974$         & $6.29$         & $0.879$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[H]
@@ -227,7 +226,7 @@ Now for the simulation study. Using the same process used for Model $\mathcal{B}
         \label{fig:ss-full}
 \end{figure}
 
-All parameters converge around their true values. Since the simulation study only used an observation length of $100$, tighter fits with fewer outliers would be expected if the observation length was increased (Theorem~\ref{the:aymp}). The standout value for the RMSEs, is the value for $\tau_{\mu_1}$. This is partly since for an observation length of $100$ and a $p$ of $0.95$, there would only be approximately five spikes per simulation. This makes approximating the spike parameters a tall order that would be solved by using a longer observation length. This was not computationally feasible for this project.
+All parameters converge around their true values. Since the simulation study only used an observation length of $100$, tighter fits with fewer outliers would be expected if the observation length was increased (Theorem~\ref{the:aymp}). The standout value for the RMSEs, is the value for $\tau_{\mu_1}$. This is partly since for an observation length of $100$ and a $p$ of $0.95$, there would only be approximately five spikes per simulation. Thus, approximating the spike parameters is a tall order that can only be solved by using a longer observation length. This was not computationally feasible for this project.
 
 Since the simulation study can provide strong evidence that the estimation will converge to the true parameters, the next section will cover fitting some real spot price data from Nordpool.
 
